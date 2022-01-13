@@ -1,0 +1,16 @@
+{
+  "name": "clear-selected-text-popover",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "repository": "https://github.com/tonitrnel/clear-selected-text-popover.git",
+  "author": "tonitrnel",
+  "license": "MIT",
+  "packageManager": "yarn@3.1.1",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.4"
+  }
+}
