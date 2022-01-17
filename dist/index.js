@@ -88,4 +88,3 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     window.requestIdleCallback(handler);
 });
-export {};
