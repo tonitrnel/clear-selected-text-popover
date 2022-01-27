@@ -1,10 +1,11 @@
+"use strict";
 // ==UserScript==
 // @name        清除选中文本弹出气泡 - geekbang.org
 // @namespace   Violentmonkey Scripts
-// @homepage    https://github.com/tonitrnel/clear-selected-text-popover.git
+// @homepage    https://github.com/tonitrnel/events-remove-script.git
 // @match       https://time.geekbang.org/column/article/*
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      Tonitrnel
 // @description 2022/1/13 下午11:05:40
 // ==/UserScript==
@@ -16,9 +17,9 @@ const originalEventManager = {
 EventTarget.prototype.addEventListener = function addEventListener(type, listener, options) {
     if (!listener)
         return void 0;
-    if (typeof listener === "object")
+    if (typeof listener === 'object')
         return originalEventManager.addEventListener.call(this, type, listener, options);
-    const { once, passive, capture, signal, useCapture } = typeof options === "boolean"
+    const { once, passive, capture, signal, useCapture } = typeof options === 'boolean'
         ? {
             capture: false,
             once: false,
@@ -74,17 +75,51 @@ window.getEventListeners = (element) => {
         return obj;
     }, {});
 };
-document.addEventListener("DOMContentLoaded", () => {
-    const handler = () => {
-        if (document.querySelector("div[class^=RichContentPC_wrap]") === null) {
-            window.requestIdleCallback(handler);
-            return void 0;
-        }
+(() => {
+    function removePopoverBoundEvents() {
         Object.entries(window.getEventListeners(document))
-            .filter(([k]) => k.startsWith("mouse"))
+            .filter(([k]) => k.startsWith('mouse'))
             .flatMap(([, events]) => events)
-            .filter((it) => it.listener.name.startsWith("bound"))
+            .filter((it) => it.listener.name.startsWith('bound'))
             .forEach((event) => document.removeEventListener(event.type, event.listener));
-    };
-    window.requestIdleCallback(handler);
-});
+    }
+    function bindTurningPageEvents() {
+        const handler = async () => {
+            await waitContentReady();
+            removePopoverBoundEvents();
+        };
+        document
+            .querySelector('div[class^=Index_leftSideScrollArea]')
+            ?.addEventListener('click', (e) => {
+            const target = e.target;
+            if (!target.className.includes('ArticleItem'))
+                return void 0;
+            return handler();
+        });
+        document
+            .querySelector('div[class^=Index_prevBtn]')
+            ?.addEventListener('click', handler);
+        document
+            .querySelector('div[class^=Index_nextBtn]')
+            ?.addEventListener('click', handler);
+    }
+    function waitContentReady() {
+        return new Promise((resolve) => {
+            const handler = async () => {
+                if (document.querySelector('div[class^=RichContentPC_wrap]') === null) {
+                    await new Promise((resolve) => setTimeout(resolve, 300));
+                    window.requestIdleCallback(handler);
+                    return void 0;
+                }
+                resolve();
+            };
+            window.requestIdleCallback(handler);
+        });
+    }
+    async function main() {
+        await waitContentReady();
+        removePopoverBoundEvents();
+        bindTurningPageEvents();
+    }
+    document.addEventListener('DOMContentLoaded', main);
+})();

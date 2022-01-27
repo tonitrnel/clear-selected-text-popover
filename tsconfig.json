@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
     "noImplicitAny": true,
@@ -18,13 +18,14 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "baseUrl": "src",
+    "isolatedModules": false,
+    "baseUrl": "./",
     "outDir": "dist",
     "incremental": true
   },
   "include": [
     "src/**/*.ts",
+    "src/typings.d.ts"
   ],
   "exclude": [
     "node_modules"
